@@ -15,7 +15,8 @@ namespace Tangent.Helpers
 {
     public class DAL
     {
-        public static List<Project> GetProjects() {
+        public static List<Project> GetProjects()
+        {
             string jsonResponse;
 
             using (var client = new WebClient())
@@ -94,7 +95,8 @@ namespace Tangent.Helpers
             }
         }
 
-        public static void Create(Project project) {
+        public static void Create(Project project)
+        {
 
             NameValueCollection nameValueCollection = new NameValueCollection();
             nameValueCollection.Add("title", project.title);
@@ -138,7 +140,8 @@ namespace Tangent.Helpers
             ser.WriteObject(output, input);
         }
 
-        public static void Edit(Project project) {
+        public static void Edit(Project project)
+        {
             NameValueCollection nameValueCollection = new NameValueCollection();
             nameValueCollection.Add("title", project.title);
             nameValueCollection.Add("description", project.description);
@@ -148,28 +151,26 @@ namespace Tangent.Helpers
             nameValueCollection.Add("is_active", project.is_active.ToString());
             //string jsonResponse;
 
-            var request = (HttpWebRequest)WebRequest.Create("http://projectservice.staging.tangentmicroservices.com:80/api/v1/projects/" + project.pk + "/");
-            request.Method = "PUT";
-            request.ContentType = "application/json";
-            request.Headers.Add(HttpRequestHeader.Authorization, "Token b7ec34e136bb6d28a4421e422e852b99cc834d17");
+            byte[] jsonResponse;
 
             using (var client = new WebClient())
             {
                 try
                 {
                     client.BaseAddress = "http://projectservice.staging.tangentmicroservices.com:80/api/v1/projects/" + project.pk + "/";
-                    client.Headers.Add(HttpRequestHeader.ContentType, "application/json");
+                    //client.Headers.Add(HttpRequestHeader.ContentType, "application/json");
                     client.Headers.Add(HttpRequestHeader.Authorization, "Token b7ec34e136bb6d28a4421e422e852b99cc834d17");
 
                     client.UseDefaultCredentials = true;
-                    MemoryStream stream1 = new MemoryStream();
-                    DataContractJsonSerializer ser = new DataContractJsonSerializer(typeof(Project));
-                    stream1.Position = 0;
-                    StreamReader sr = new StreamReader(stream1);
-                    ser.WriteObject(stream1, project);
-                    string data = sr.ReadToEnd();
+                    jsonResponse = client.UploadValues(client.BaseAddress, "PUT", nameValueCollection);
 
-                    client.UploadString(client.BaseAddress, "PUT", "{'title': 'Hello2 we are just','description': 'Hello2','start_date': '2017-01-01','end_date': '2017-01-02','is_billable': false,'is_active': true,'task_set': [], 'resource_set': []}");
+                    string result = Encoding.UTF8.GetString(jsonResponse);
+                    DataContractJsonSerializer jsonSerializer = new DataContractJsonSerializer(typeof(User));
+                    MemoryStream stream = new MemoryStream(Encoding.UTF8.GetBytes(result));
+                    stream.Position = 0;
+                    User dataContractDetail = (User)jsonSerializer.ReadObject(stream);
+
+                    //return dataContractDetail;
                 }
                 catch (WebException ex)
                 {
@@ -188,7 +189,8 @@ namespace Tangent.Helpers
                 }
             }
         }
-        public static void Delete(int projectId) {
+        public static void Delete(int projectId)
+        {
             string jsonResponse;
 
             using (var client = new WebClient())
@@ -208,6 +210,50 @@ namespace Tangent.Helpers
                     string data = sr.ReadToEnd();
 
                     jsonResponse = client.UploadString(client.BaseAddress, "DELETE", data);
+                }
+                catch (WebException ex)
+                {
+                    // Http Error
+                    if (ex.Status == WebExceptionStatus.ProtocolError)
+                    {
+                        HttpWebResponse wrsp = (HttpWebResponse)ex.Response;
+                        var statusCode = (int)wrsp.StatusCode;
+                        var msg = wrsp.StatusDescription;
+                        throw new HttpException(statusCode, msg);
+                    }
+                    else
+                    {
+                        throw new HttpException(500, ex.Message);
+                    }
+                }
+            }
+        }
+
+        public static User Login(User user)
+        {
+            NameValueCollection nameValueCollection = new NameValueCollection();
+            nameValueCollection.Add("username", user.username);
+            nameValueCollection.Add("password", user.password);
+            byte[] jsonResponse;
+
+            using (var client = new WebClient())
+            {
+                try
+                {
+                    client.BaseAddress = "http://userservice.staging.tangentmicroservices.com/api-token-auth/";
+                    //client.Headers.Add(HttpRequestHeader.ContentType, "application/json");
+                    //client.Headers.Add(HttpRequestHeader.Authorization, "Token b7ec34e136bb6d28a4421e422e852b99cc834d17");
+
+                    client.UseDefaultCredentials = true;
+                    jsonResponse = client.UploadValues(client.BaseAddress, nameValueCollection);
+
+                    string result = Encoding.UTF8.GetString(jsonResponse);
+                    DataContractJsonSerializer jsonSerializer = new DataContractJsonSerializer(typeof(User));
+                    MemoryStream stream = new MemoryStream(Encoding.UTF8.GetBytes(result));
+                    stream.Position = 0;
+                    User dataContractDetail = (User)jsonSerializer.ReadObject(stream);
+
+                    return dataContractDetail;
                 }
                 catch (WebException ex)
                 {
