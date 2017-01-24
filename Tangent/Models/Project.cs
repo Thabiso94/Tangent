@@ -16,7 +16,7 @@ namespace Tangent.Models
         public string end_date { get; set; }
         public bool is_billable { get; set; }
         public bool is_active { get; set; }
-        public List<object> task_set { get; set; }
+        public List<TaskSet> task_set { get; set; }
         public List<object> resource_set { get; set; }
 
         public async Task<Project> GetProductAsync(string path)
@@ -30,5 +30,26 @@ namespace Tangent.Models
 
             return product;
         }
+    }
+
+    public class ProjectData
+    {
+        public int pk { get; set; }
+        public string title { get; set; }
+        public string description { get; set; }
+        public string start_date { get; set; }
+        public object end_date { get; set; }
+        public bool is_billable { get; set; }
+        public bool is_active { get; set; }
+    }
+
+    public class TaskSet
+    {
+        public int id { get; set; }
+        public string title { get; set; }
+        public string due_date { get; set; }
+        public string estimated_hours { get; set; }
+        public int project { get; set; }
+        public ProjectData project_data { get; set; }
     }
 }

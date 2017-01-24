@@ -15,6 +15,7 @@ using System.Collections;
 using System.Runtime.Serialization.Json;
 using System.IO;
 using System.Text;
+using Tangent.Helpers;
 
 namespace Tangent.Controllers
 {
@@ -22,48 +23,57 @@ namespace Tangent.Controllers
     {
         private const string URL = "http://projectservice.staging.tangentmicroservices.com:80/api/v1/";
 
-        // GET: Project
+        [HttpGet]
         public ActionResult Index()
         {
-            string jsonResponse;
+            List<Project> projects = DAL.GetProjects();
 
-            List<object> list = new List<object>();
-            using (var client = new WebClient())
-            {
-                try
-                {
-                    client.BaseAddress = "http://projectservice.staging.tangentmicroservices.com:80/api/v1/projects/";
-                    client.Headers.Add(HttpRequestHeader.ContentType, "application/json");
-                    client.Headers.Add(HttpRequestHeader.Authorization, "Token b7ec34e136bb6d28a4421e422e852b99cc834d17");
-                    // HTTP GET
-                    client.UseDefaultCredentials = true;
-                    jsonResponse = client.DownloadString(client.BaseAddress);
-
-                    DataContractJsonSerializer jsonSerializer = new DataContractJsonSerializer(typeof(List<Project>));
-                    MemoryStream stream = new MemoryStream(Encoding.UTF8.GetBytes(jsonResponse));
-                    stream.Position = 0;
-                    List<Project> dataContractDetail = (List<Project>)jsonSerializer.ReadObject(stream);
-
-                    return View(dataContractDetail);
-                }
-                catch (WebException ex)
-                {
-                    // Http Error
-                    if (ex.Status == WebExceptionStatus.ProtocolError)
-                    {
-                        HttpWebResponse wrsp = (HttpWebResponse)ex.Response;
-                        var statusCode = (int)wrsp.StatusCode;
-                        var msg = wrsp.StatusDescription;
-                        throw new HttpException(statusCode, msg);
-                    }
-                    else
-                    {
-                        throw new HttpException(500, ex.Message);
-                    }
-                }
-            }
+            return View(projects);
         }
 
-        public ActionResult ProjectTask() { }
+        [HttpGet]
+        public ActionResult ProjectTask(int projectId)
+        {
+            List<TaskSet> tasks = DAL.GetProjectById(projectId).task_set;
+
+            return View(tasks);
+        }
+
+        [HttpGet]
+        public ActionResult Create()
+        {
+            return View();
+        }
+
+        [HttpPost]
+        public ActionResult Create(Project project)
+        {
+            //TODO: RUN THE CREATION METHOD
+
+            return RedirectToAction("Index");
+        }
+
+        [HttpPost]
+        public ActionResult Delete(int projectId)
+        {
+            //TODO: RUN THE DELETION METHOD
+
+            return RedirectToAction("Index");
+        }
+
+        [HttpGet]
+        public ActionResult Edit(int projectId)
+        {
+            Project project = DAL.GetProjectById(projectId);
+            return View(project);
+        }
+
+        [HttpPost]
+        public ActionResult Edit(Project project)
+        {
+            //TODO: RUN THE DELETE METHOD
+
+            return RedirectToAction("Index");
+        }
     }
 }

@@ -1,0 +1,46 @@
+﻿@model IEnumerable<Tangent.Models.TaskSet>
+
+@{
+    ViewBag.Title = "ProjectTask";
+}
+
+<h2>ProjectTask</h2>
+
+<p>
+    @Html.ActionLink("Create New", "Create")
+</p>
+<table class="table">
+    <tr>
+        <th>
+            @Html.DisplayNameFor(model => model.title)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.due_date)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.estimated_hours)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.project)
+        </th>
+        <th></th>
+    </tr>
+
+@foreach (var item in Model) {
+    <tr>
+        <td>
+            @Html.DisplayFor(modelItem => item.title)
+        </td>
+        <td>
+            @Html.DisplayFor(modelItem => item.due_date)
+        </td>
+        <td>
+            @Html.DisplayFor(modelItem => item.estimated_hours)
+        </td>
+        <td>
+            @Html.DisplayFor(modelItem => item.project)
+        </td>
+    </tr>
+}
+
+</table>
