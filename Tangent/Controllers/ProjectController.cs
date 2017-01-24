@@ -26,7 +26,7 @@ namespace Tangent.Controllers
         [HttpGet]
         public ActionResult Index()
         {
-            List<Project> projects = DAL.GetProjects();
+            IEnumerable<Project> projects = DAL.GetProjects().OrderBy(p => p.pk);
 
             return View(projects);
         }
@@ -49,14 +49,25 @@ namespace Tangent.Controllers
         public ActionResult Create(Project project)
         {
             //TODO: RUN THE CREATION METHOD
+            DAL.Create(project);
 
             return RedirectToAction("Index");
         }
 
-        [HttpPost]
+        [HttpGet]
         public ActionResult Delete(int projectId)
         {
             //TODO: RUN THE DELETION METHOD
+            Project project = DAL.GetProjectById(projectId);
+
+            return View(project);
+        }
+
+        [HttpPost, ActionName("Delete")]
+        public ActionResult DeleteConfirm(int projectId)
+        {
+            //TODO: RUN THE DELETION METHOD
+            DAL.Delete(projectId);
 
             return RedirectToAction("Index");
         }
@@ -65,6 +76,7 @@ namespace Tangent.Controllers
         public ActionResult Edit(int projectId)
         {
             Project project = DAL.GetProjectById(projectId);
+
             return View(project);
         }
 
@@ -72,6 +84,7 @@ namespace Tangent.Controllers
         public ActionResult Edit(Project project)
         {
             //TODO: RUN THE DELETE METHOD
+            DAL.Edit(project);
 
             return RedirectToAction("Index");
         }

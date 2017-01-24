@@ -1,8 +1,11 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
+using System.Collections.Specialized;
 using System.IO;
 using System.Linq;
 using System.Net;
+using System.Runtime.Serialization;
 using System.Runtime.Serialization.Json;
 using System.Text;
 using System.Web;
@@ -90,5 +93,139 @@ namespace Tangent.Helpers
                 }
             }
         }
+
+        public static void Create(Project project) {
+
+            NameValueCollection nameValueCollection = new NameValueCollection();
+            nameValueCollection.Add("title", project.title);
+            nameValueCollection.Add("description", project.description);
+            nameValueCollection.Add("start_date", project.start_date);
+            nameValueCollection.Add("end_date", project.end_date);
+            nameValueCollection.Add("is_billable", project.is_billable.ToString());
+            nameValueCollection.Add("is_active", project.is_active.ToString());
+
+            using (var client = new WebClient())
+            {
+                try
+                {
+                    client.BaseAddress = "http://projectservice.staging.tangentmicroservices.com:80/api/v1/projects/";
+                    client.Headers.Add(HttpRequestHeader.Authorization, "Token b7ec34e136bb6d28a4421e422e852b99cc834d17");
+
+                    client.UseDefaultCredentials = true;
+                    client.UploadValues(client.BaseAddress, nameValueCollection);
+                }
+                catch (WebException ex)
+                {
+                    // Http Error
+                    if (ex.Status == WebExceptionStatus.ProtocolError)
+                    {
+                        HttpWebResponse wrsp = (HttpWebResponse)ex.Response;
+                        var statusCode = (int)wrsp.StatusCode;
+                        var msg = wrsp.StatusDescription;
+                        throw new HttpException(statusCode, msg);
+                    }
+                    else
+                    {
+                        throw new HttpException(500, ex.Message);
+                    }
+                }
+            }
+        }
+
+        public static void Serialize(Stream output, object input)
+        {
+            var ser = new DataContractSerializer(input.GetType());
+            ser.WriteObject(output, input);
+        }
+
+        public static void Edit(Project project) {
+            NameValueCollection nameValueCollection = new NameValueCollection();
+            nameValueCollection.Add("title", project.title);
+            nameValueCollection.Add("description", project.description);
+            nameValueCollection.Add("start_date", project.start_date);
+            nameValueCollection.Add("end_date", project.end_date);
+            nameValueCollection.Add("is_billable", project.is_billable.ToString());
+            nameValueCollection.Add("is_active", project.is_active.ToString());
+            //string jsonResponse;
+
+            var request = (HttpWebRequest)WebRequest.Create("http://projectservice.staging.tangentmicroservices.com:80/api/v1/projects/" + project.pk + "/");
+            request.Method = "PUT";
+            request.ContentType = "application/json";
+            request.Headers.Add(HttpRequestHeader.Authorization, "Token b7ec34e136bb6d28a4421e422e852b99cc834d17");
+
+            using (var client = new WebClient())
+            {
+                try
+                {
+                    client.BaseAddress = "http://projectservice.staging.tangentmicroservices.com:80/api/v1/projects/" + project.pk + "/";
+                    client.Headers.Add(HttpRequestHeader.ContentType, "application/json");
+                    client.Headers.Add(HttpRequestHeader.Authorization, "Token b7ec34e136bb6d28a4421e422e852b99cc834d17");
+
+                    client.UseDefaultCredentials = true;
+                    MemoryStream stream1 = new MemoryStream();
+                    DataContractJsonSerializer ser = new DataContractJsonSerializer(typeof(Project));
+                    stream1.Position = 0;
+                    StreamReader sr = new StreamReader(stream1);
+                    ser.WriteObject(stream1, project);
+                    string data = sr.ReadToEnd();
+
+                    client.UploadString(client.BaseAddress, "PUT", "{'title': 'Hello2 we are just','description': 'Hello2','start_date': '2017-01-01','end_date': '2017-01-02','is_billable': false,'is_active': true,'task_set': [], 'resource_set': []}");
+                }
+                catch (WebException ex)
+                {
+                    // Http Error
+                    if (ex.Status == WebExceptionStatus.ProtocolError)
+                    {
+                        HttpWebResponse wrsp = (HttpWebResponse)ex.Response;
+                        var statusCode = (int)wrsp.StatusCode;
+                        var msg = wrsp.StatusDescription;
+                        throw new HttpException(statusCode, msg);
+                    }
+                    else
+                    {
+                        throw new HttpException(500, ex.Message);
+                    }
+                }
+            }
+        }
+        public static void Delete(int projectId) {
+            string jsonResponse;
+
+            using (var client = new WebClient())
+            {
+                try
+                {
+                    client.BaseAddress = "http://projectservice.staging.tangentmicroservices.com:80/api/v1/projects/" + projectId + "/";
+                    client.Headers.Add(HttpRequestHeader.ContentType, "application/json");
+                    client.Headers.Add(HttpRequestHeader.Authorization, "Token b7ec34e136bb6d28a4421e422e852b99cc834d17");
+
+                    client.UseDefaultCredentials = true;
+                    MemoryStream stream1 = new MemoryStream();
+                    DataContractJsonSerializer ser = new DataContractJsonSerializer(typeof(Project));
+                    stream1.Position = 0;
+                    StreamReader sr = new StreamReader(stream1);
+                    ser.WriteObject(stream1, projectId);
+                    string data = sr.ReadToEnd();
+
+                    jsonResponse = client.UploadString(client.BaseAddress, "DELETE", data);
+                }
+                catch (WebException ex)
+                {
+                    // Http Error
+                    if (ex.Status == WebExceptionStatus.ProtocolError)
+                    {
+                        HttpWebResponse wrsp = (HttpWebResponse)ex.Response;
+                        var statusCode = (int)wrsp.StatusCode;
+                        var msg = wrsp.StatusDescription;
+                        throw new HttpException(statusCode, msg);
+                    }
+                    else
+                    {
+                        throw new HttpException(500, ex.Message);
+                    }
+                }
+            }
+        }
+
     }
 }
