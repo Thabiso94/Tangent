@@ -1,7 +1,7 @@
 ﻿@model Tangent.Models.Project
 
 @{
-    ViewBag.Title = "Delete";
+    ViewBag.Title = "Delete Project";
 }
 
 <h2>Delete</h2>
@@ -11,14 +11,6 @@
     <h4>Project</h4>
     <hr />
     <dl class="dl-horizontal">
-        <dt>
-            @Html.DisplayNameFor(model => model.pk)
-        </dt>
-
-        <dd>
-            @Html.DisplayFor(model => model.pk)
-        </dd>
-
         <dt>
             @Html.DisplayNameFor(model => model.title)
         </dt>
@@ -48,7 +40,15 @@
         </dt>
 
         <dd>
-            @Html.DisplayFor(model => model.end_date)
+            @if (Model.end_date != null)
+            {
+                @Html.DisplayFor(model => model.end_date)
+            }
+            else
+            {
+                <span>No end date set</span>
+            }
+            
         </dd>
 
         <dt>
@@ -56,7 +56,16 @@
         </dt>
 
         <dd>
-            @Html.DisplayFor(model => model.is_billable)
+            <td>
+                @if (Model.is_billable == true)
+            {
+                    <span>&#x2714;</span>
+                }
+                else
+                {
+                    <span>&#x2716;</span>
+                }
+            </td>
         </dd>
 
         <dt>
@@ -64,17 +73,27 @@
         </dt>
 
         <dd>
-            @Html.DisplayFor(model => model.is_active)
+            <td>
+                @if (Model.is_active == true)
+            {
+                    <span>&#x2714;</span>
+                }
+                else
+                {
+                    <span>&#x2716;</span>
+                }
+            </td>
         </dd>
 
     </dl>
 
-    @using (Html.BeginForm()) {
+    @using (Html.BeginForm())
+    {
         @Html.AntiForgeryToken()
 
         <div class="form-actions no-color">
-            <input type="submit" value="Delete" class="btn btn-default" /> |
-            @Html.ActionLink("Back to List", "Index")
+            <input type="submit" value="Delete" class="btn btn-danger" />
+            @Html.ActionLink("Cancel", "Index", "", new { @class = "btn btn-default" })
         </div>
     }
 </div>
