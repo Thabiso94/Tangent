@@ -73,6 +73,7 @@ namespace Tangent.Controllers
         }
 
         [HttpGet]
+        [HandleError]
         public ActionResult Edit(int projectId)
         {
             Project project = DAL.GetProjectById(projectId);
@@ -81,12 +82,21 @@ namespace Tangent.Controllers
         }
 
         [HttpPost]
+        [HandleError]
         public ActionResult Edit(Project project)
         {
             //TODO: RUN THE DELETE METHOD
-            DAL.Edit(project);
+            object operation = DAL.Edit(project);
 
-            return RedirectToAction("Index");
+            if (operation.GetType() == typeof(string))
+            {
+                return RedirectToAction("Error", "Error", new { message = operation });
+            }
+            else
+            {
+                return RedirectToAction("Index");
+            }
+
         }
     }
 }

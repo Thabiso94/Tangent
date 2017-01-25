@@ -140,7 +140,7 @@ namespace Tangent.Helpers
             ser.WriteObject(output, input);
         }
 
-        public static void Edit(Project project)
+        public static object Edit(Project project)
         {
             NameValueCollection nameValueCollection = new NameValueCollection();
             nameValueCollection.Add("title", project.title);
@@ -170,7 +170,7 @@ namespace Tangent.Helpers
                     stream.Position = 0;
                     User dataContractDetail = (User)jsonSerializer.ReadObject(stream);
 
-                    //return dataContractDetail;
+                    return dataContractDetail;
                 }
                 catch (WebException ex)
                 {
@@ -180,11 +180,11 @@ namespace Tangent.Helpers
                         HttpWebResponse wrsp = (HttpWebResponse)ex.Response;
                         var statusCode = (int)wrsp.StatusCode;
                         var msg = wrsp.StatusDescription;
-                        throw new HttpException(statusCode, msg);
+                        return msg;
                     }
                     else
                     {
-                        throw new HttpException(500, ex.Message);
+                        return ex.Message;
                     }
                 }
             }
