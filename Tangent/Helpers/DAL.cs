@@ -236,8 +236,6 @@ namespace Tangent.Helpers
                 try
                 {
                     client.BaseAddress = "http://userservice.staging.tangentmicroservices.com/api-token-auth/";
-                    //client.Headers.Add(HttpRequestHeader.ContentType, "application/json");
-                    //client.Headers.Add(HttpRequestHeader.Authorization, "Token b7ec34e136bb6d28a4421e422e852b99cc834d17");
 
                     client.UseDefaultCredentials = true;
                     jsonResponse = client.UploadValues(client.BaseAddress, nameValueCollection);
@@ -252,7 +250,6 @@ namespace Tangent.Helpers
                 }
                 catch (WebException ex)
                 {
-                    // Http Error
                     if (ex.Status == WebExceptionStatus.ProtocolError)
                     {
                         HttpWebResponse wrsp = (HttpWebResponse)ex.Response;

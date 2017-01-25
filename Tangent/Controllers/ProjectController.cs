@@ -52,7 +52,9 @@ namespace Tangent.Controllers
             {
                 User user = (User)Session["User"];
 
-                List<TaskSet> tasks = DAL.GetProjectById(user.token, projectId).task_set;
+                Project project = DAL.GetProjectById(user.token, projectId);
+                List<TaskSet> tasks = project.task_set;
+                ViewBag.ProjectName = project.title;
 
                 return View(tasks);
             }

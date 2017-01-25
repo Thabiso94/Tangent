@@ -1,6 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.Specialized;
+using System.IO;
 using System.Linq;
+using System.Net;
+using System.Runtime.Serialization.Json;
+using System.Text;
 using System.Web;
 using System.Web.Mvc;
 using Tangent.Helpers;
@@ -24,15 +29,54 @@ namespace Tangent.Controllers
         [HttpPost]
         public ActionResult Login(User user)
         {
-            User loggedInUser = DAL.Login(user);
-            if (loggedInUser.token != null)
+            NameValueCollection nameValueCollection = new NameValueCollection();
+            nameValueCollection.Add("username", user.username);
+            nameValueCollection.Add("password", user.password);
+            byte[] jsonResponse;
+
+            using (var client = new WebClient())
             {
-                Session["User"] = loggedInUser;
-                return RedirectToAction("Index", "Project");
-            }
-            else
-            {
-                return View();
+                try
+                {
+                    client.BaseAddress = "http://userservice.staging.tangentmicroservices.com/api-token-auth/";
+
+                    client.UseDefaultCredentials = true;
+                    jsonResponse = client.UploadValues(client.BaseAddress, nameValueCollection);
+
+                    string result = Encoding.UTF8.GetString(jsonResponse);
+                    if (result != null)
+                    {
+                        DataContractJsonSerializer jsonSerializer = new DataContractJsonSerializer(typeof(User));
+                        MemoryStream stream = new MemoryStream(Encoding.UTF8.GetBytes(result));
+                        stream.Position = 0;
+                        User dataContractDetail = (User)jsonSerializer.ReadObject(stream);
+
+                        Session["User"] = dataContractDetail;
+                        return RedirectToAction("Index", "Project");
+                    }
+                    else
+                    {
+                        ViewBag.Message = "The username or password is incorrect";
+                        return View();
+                    }
+
+                }
+                catch (WebException ex)
+                {
+                    if (ex.Status == WebExceptionStatus.ProtocolError)
+                    {
+                        HttpWebResponse wrsp = (HttpWebResponse)ex.Response;
+                        var statusCode = (int)wrsp.StatusCode;
+                        var msg = wrsp.StatusDescription;
+                        ViewBag.Message = "The username or password is incorrect";
+                        return View();
+                    }
+                    else
+                    {
+                        ViewBag.Message = "The username or password is incorrect";
+                        return View();
+                    }
+                }
             }
         }
 

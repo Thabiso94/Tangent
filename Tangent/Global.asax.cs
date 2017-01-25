@@ -14,5 +14,7 @@ namespace Tangent
             AreaRegistration.RegisterAllAreas();
             RouteConfig.RegisterRoutes(RouteTable.Routes);
         }
+
+
     }
 }

@@ -3,8 +3,8 @@
     ViewBag.Title = "Error";
 }
 
-<h2>Error</h2>
+<h2>Oops!</h2>
+<p>Seems like that request went down the wrong pipe on our server <span style="font-weight:bold;">#cough</span>. Sorry about that.</p>
+<p>@ViewBag.message </p>
 
-@ViewBag.message 
-
-
+@Html.ActionLink("Go to home page", "Index", "Project")
