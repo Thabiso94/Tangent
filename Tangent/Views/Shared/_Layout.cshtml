@@ -18,10 +18,21 @@
                     <span class="icon-bar"></span>
                     <span class="icon-bar"></span>
                 </button>
-                @Html.ActionLink("Project Manager", "Index", "Project", new { area = "" }, new { @class = "navbar-brand" })
+                @if (Session["User"] == null)
+                {
+                    @Html.ActionLink("Project Manager", "Login", "User", new { area = "" }, new { @class = "navbar-brand" })
+                }
+                else
+                {
+                    @Html.ActionLink("Project Manager", "Index", "Project", new { area = "" }, new { @class = "navbar-brand" })
+                }
             </div>
             <div class="navbar-collapse collapse">
-                <ul class="nav navbar-nav">
+                <ul class="nav navbar-nav navbar-right">
+                    @if (Session["User"] != null)
+                    {
+                        <li>@Html.ActionLink("Logout", "Logout", "User")</li>
+                    }
                 </ul>
             </div>
         </div>
@@ -42,7 +53,7 @@
 
     <script>
         $(document).ready(function () {
-            $('#start_date').datepicker({ format: 'yyyy-mm-dd', autoclose: true, clearBtn: true, orientation: "bottom"});
+            $('#start_date').datepicker({ format: 'yyyy-mm-dd', autoclose: true, clearBtn: true, orientation: "bottom" });
             $('#end_date').datepicker({ format: 'yyyy-mm-dd', autoclose: true, clearBtn: true, orientation: "bottom" });
 
             $('#is_billable').checkboxpicker({

@@ -13,6 +13,11 @@ namespace Tangent.Controllers
         [HttpGet]
         public ActionResult Login()
         {
+            if (Request.QueryString.Count > 0)
+            {
+                ViewBag.Message = Uri.UnescapeDataString(Request.QueryString["message"]);
+            }
+
             return View();
         }
 
@@ -22,12 +27,20 @@ namespace Tangent.Controllers
             User loggedInUser = DAL.Login(user);
             if (loggedInUser.token != null)
             {
+                Session["User"] = loggedInUser;
                 return RedirectToAction("Index", "Project");
             }
             else
             {
                 return View();
             }
+        }
+
+        [HttpGet]
+        public ActionResult Logout() {
+            Session["User"] = null;
+
+            return RedirectToAction("Login", "User");
         }
     }
 }

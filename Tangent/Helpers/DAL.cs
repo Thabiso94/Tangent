@@ -15,7 +15,7 @@ namespace Tangent.Helpers
 {
     public class DAL
     {
-        public static List<Project> GetProjects()
+        public static List<Project> GetProjects(string token)
         {
             string jsonResponse;
 
@@ -25,7 +25,7 @@ namespace Tangent.Helpers
                 {
                     client.BaseAddress = "http://projectservice.staging.tangentmicroservices.com:80/api/v1/projects/";
                     client.Headers.Add(HttpRequestHeader.ContentType, "application/json");
-                    client.Headers.Add(HttpRequestHeader.Authorization, "Token b7ec34e136bb6d28a4421e422e852b99cc834d17");
+                    client.Headers.Add(HttpRequestHeader.Authorization, "Token " + token);
 
                     client.UseDefaultCredentials = true;
                     jsonResponse = client.DownloadString(client.BaseAddress);
@@ -55,7 +55,7 @@ namespace Tangent.Helpers
             }
         }
 
-        public static Project GetProjectById(int projectId)
+        public static Project GetProjectById(string token, int projectId)
         {
             string jsonResponse;
 
@@ -65,7 +65,7 @@ namespace Tangent.Helpers
                 {
                     client.BaseAddress = "http://projectservice.staging.tangentmicroservices.com:80/api/v1/projects/" + projectId + "/";
                     client.Headers.Add(HttpRequestHeader.ContentType, "application/json");
-                    client.Headers.Add(HttpRequestHeader.Authorization, "Token b7ec34e136bb6d28a4421e422e852b99cc834d17");
+                    client.Headers.Add(HttpRequestHeader.Authorization, "Token " + token);
 
                     client.UseDefaultCredentials = true;
                     jsonResponse = client.DownloadString(client.BaseAddress);
@@ -95,7 +95,7 @@ namespace Tangent.Helpers
             }
         }
 
-        public static void Create(Project project)
+        public static void Create(string token, Project project)
         {
 
             NameValueCollection nameValueCollection = new NameValueCollection();
@@ -111,7 +111,7 @@ namespace Tangent.Helpers
                 try
                 {
                     client.BaseAddress = "http://projectservice.staging.tangentmicroservices.com:80/api/v1/projects/";
-                    client.Headers.Add(HttpRequestHeader.Authorization, "Token b7ec34e136bb6d28a4421e422e852b99cc834d17");
+                    client.Headers.Add(HttpRequestHeader.Authorization, "Token " + token);
 
                     client.UseDefaultCredentials = true;
                     client.UploadValues(client.BaseAddress, nameValueCollection);
@@ -134,13 +134,7 @@ namespace Tangent.Helpers
             }
         }
 
-        public static void Serialize(Stream output, object input)
-        {
-            var ser = new DataContractSerializer(input.GetType());
-            ser.WriteObject(output, input);
-        }
-
-        public static object Edit(Project project)
+        public static object Edit(string token, Project project)
         {
             NameValueCollection nameValueCollection = new NameValueCollection();
             nameValueCollection.Add("title", project.title);
@@ -159,7 +153,7 @@ namespace Tangent.Helpers
                 {
                     client.BaseAddress = "http://projectservice.staging.tangentmicroservices.com:80/api/v1/projects/" + project.pk + "/";
                     //client.Headers.Add(HttpRequestHeader.ContentType, "application/json");
-                    client.Headers.Add(HttpRequestHeader.Authorization, "Token b7ec34e136bb6d28a4421e422e852b99cc834d17");
+                    client.Headers.Add(HttpRequestHeader.Authorization, "Token " + token);
 
                     client.UseDefaultCredentials = true;
                     jsonResponse = client.UploadValues(client.BaseAddress, "PUT", nameValueCollection);
@@ -189,7 +183,8 @@ namespace Tangent.Helpers
                 }
             }
         }
-        public static void Delete(int projectId)
+
+        public static void Delete(string token, int projectId)
         {
             string jsonResponse;
 
@@ -199,7 +194,7 @@ namespace Tangent.Helpers
                 {
                     client.BaseAddress = "http://projectservice.staging.tangentmicroservices.com:80/api/v1/projects/" + projectId + "/";
                     client.Headers.Add(HttpRequestHeader.ContentType, "application/json");
-                    client.Headers.Add(HttpRequestHeader.Authorization, "Token b7ec34e136bb6d28a4421e422e852b99cc834d17");
+                    client.Headers.Add(HttpRequestHeader.Authorization, "Token " + token);
 
                     client.UseDefaultCredentials = true;
                     MemoryStream stream1 = new MemoryStream();
@@ -272,6 +267,5 @@ namespace Tangent.Helpers
                 }
             }
         }
-
     }
 }

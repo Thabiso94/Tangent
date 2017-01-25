@@ -16,6 +16,7 @@ using System.Runtime.Serialization.Json;
 using System.IO;
 using System.Text;
 using Tangent.Helpers;
+using System.Web.Routing;
 
 namespace Tangent.Controllers
 {
@@ -26,77 +27,146 @@ namespace Tangent.Controllers
         [HttpGet]
         public ActionResult Index()
         {
-            IEnumerable<Project> projects = DAL.GetProjects().OrderBy(p => p.pk);
+            if (Session["User"] == null)
+            {
+                return RedirectToAction("Login", "User", new RouteValueDictionary(new { message = "Please login first" }));
+            }
+            else
+            {
+                User user = (User)Session["User"];
 
-            return View(projects);
+                IEnumerable<Project> projects = DAL.GetProjects(user.token).OrderBy(p => p.pk);
+
+                return View(projects);
+            }
         }
 
         [HttpGet]
         public ActionResult ProjectTask(int projectId)
         {
-            List<TaskSet> tasks = DAL.GetProjectById(projectId).task_set;
+            if (Session["User"] == null)
+            {
+                return RedirectToAction("Login", "User", new RouteValueDictionary(new { message = "Please login first" }));
+            }
+            else
+            {
+                User user = (User)Session["User"];
 
-            return View(tasks);
+                List<TaskSet> tasks = DAL.GetProjectById(user.token, projectId).task_set;
+
+                return View(tasks);
+            }
         }
 
         [HttpGet]
         public ActionResult Create()
         {
-            return View();
+            if (Session["User"] == null)
+            {
+                return RedirectToAction("Login", "User", new RouteValueDictionary(new { message = "Please login first" }));
+            }
+            else
+            {
+                User user = (User)Session["User"];
+
+                return View();
+            }
         }
 
         [HttpPost]
         public ActionResult Create(Project project)
         {
-            //TODO: RUN THE CREATION METHOD
-            DAL.Create(project);
+            if (Session["User"] == null)
+            {
+                return RedirectToAction("Login", "User", new RouteValueDictionary(new { message = "Please login first" }));
+            }
+            else
+            {
+                User user = (User)Session["User"];
 
-            return RedirectToAction("Index");
+                //TODO: RUN THE CREATION METHOD
+                DAL.Create(user.token, project);
+
+                return RedirectToAction("Index");
+            }
         }
 
         [HttpGet]
         public ActionResult Delete(int projectId)
         {
-            //TODO: RUN THE DELETION METHOD
-            Project project = DAL.GetProjectById(projectId);
+            if (Session["User"] == null)
+            {
+                return RedirectToAction("Login", "User", new RouteValueDictionary(new { message = "Please login first" }));
+            }
+            else
+            {
+                User user = (User)Session["User"];
 
-            return View(project);
+                //TODO: RUN THE DELETION METHOD
+                Project project = DAL.GetProjectById(user.token, projectId);
+
+                return View(project);
+            }
         }
 
         [HttpPost, ActionName("Delete")]
         public ActionResult DeleteConfirm(int projectId)
         {
-            //TODO: RUN THE DELETION METHOD
-            DAL.Delete(projectId);
-
-            return RedirectToAction("Index");
-        }
-
-        [HttpGet]
-        [HandleError]
-        public ActionResult Edit(int projectId)
-        {
-            Project project = DAL.GetProjectById(projectId);
-
-            return View(project);
-        }
-
-        [HttpPost]
-        [HandleError]
-        public ActionResult Edit(Project project)
-        {
-            //TODO: RUN THE DELETE METHOD
-            object operation = DAL.Edit(project);
-
-            if (operation.GetType() == typeof(string))
+            if (Session["User"] == null)
             {
-                return RedirectToAction("Error", "Error", new { message = operation });
+                return RedirectToAction("Login", "User", new RouteValueDictionary(new { message = "Please login first" }));
             }
             else
             {
+                User user = (User)Session["User"];
+
+                //TODO: RUN THE DELETION METHOD
+                DAL.Delete(user.token, projectId);
+
                 return RedirectToAction("Index");
             }
+        }
 
+        [HttpGet]
+        public ActionResult Edit(int projectId)
+        {
+            if (Session["User"] == null)
+            {
+                return RedirectToAction("Login", "User", new RouteValueDictionary(new { message = "Please login first" }));
+            }
+            else
+            {
+                User user = (User)Session["User"];
+
+                Project project = DAL.GetProjectById(user.token, projectId);
+
+                return View(project);
+            }
+        }
+
+        [HttpPost]
+        public ActionResult Edit(Project project)
+        {
+            if (Session["User"] == null)
+            {
+                return RedirectToAction("Login", "User", new RouteValueDictionary(new { message = "Please login first" }));
+            }
+            else
+            {
+                User user = (User)Session["User"];
+
+                //TODO: RUN THE DELETE METHOD
+                object operation = DAL.Edit(user.token, project);
+
+                if (operation.GetType() == typeof(string))
+                {
+                    return RedirectToAction("Error", "Error", new { message = operation });
+                }
+                else
+                {
+                    return RedirectToAction("Index");
+                }
+            }
         }
     }
 }
